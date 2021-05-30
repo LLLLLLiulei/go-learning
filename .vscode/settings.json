@@ -1,0 +1,7 @@
+{
+    "go.inferGopath": false,
+    "go.testFlags": ["-v"],
+    "settings":{
+        "go.testFlags": ["-v"]
+    }
+}

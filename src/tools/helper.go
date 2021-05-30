@@ -13,12 +13,7 @@ import (
 	"time"
 )
 
-type myHandler struct{}
-
-func (*myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("ok"))
-}
-
+ 
 func base_handler(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Access-Control-Allow-Origin", "*")
 	request.ParseForm()
@@ -54,7 +49,7 @@ func capture_handler(response http.ResponseWriter, request *http.Request) {
 	fmt.Println(file.Name())
 
 	response.Header().Set("content-type", "image/png")
-	data, err := ioutil.ReadFile(file.Name())
+	data, _ := ioutil.ReadFile(file.Name())
 	response.Write(data)
 }
 
@@ -64,21 +59,25 @@ func localimage_handler(response http.ResponseWriter, request *http.Request) {
 	file_path := request.FormValue("filePath")
 	file_path, err := url.QueryUnescape(file_path)
 	file, err := ioutil.ReadFile(file_path)
-	fmt.Println(err)
-	response.Header().Set("content-type", "image/png")
-	response.Write(file)
+	
+	if err!=nil {
+		fmt.Println(err)
+		response.WriteHeader(http.StatusNotFound)
+	}else{
+		response.Header().Set("content-type", "image/png")
+		response.Write(file)
+	}
 }
 
 func start_http_server() {
 	mux := http.NewServeMux()
-	// mux.Handle("/", &myHandler{})
 	mux.HandleFunc("/", base_handler)
 
 	mux.HandleFunc("/capture", capture_handler)
 	mux.HandleFunc("/localimage", localimage_handler)
 
 	server := &http.Server{
-		Addr:    ":1210",
+		Addr:    ":10707",
 		Handler: mux,
 	}
 	fmt.Println("Starting httpserver ...")
